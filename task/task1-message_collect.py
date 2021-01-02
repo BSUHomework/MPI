@@ -3,7 +3,7 @@
 '''
 @author: soliva
 @Site: 
-@file: message_collect.py
+@file: task1-message_collect.py
 @time: 2020/12/30
 @desc:
 '''
@@ -15,7 +15,7 @@ import mpi4py.MPI as MPI
 all_data = [[ 0 , 1  ,2  ,3  ,4],
              [ 5 , 6  ,7 , 8 , 9],
              [10, 11 ,12, 13,14],
-             [15, 16 ,17 ,18 ,19]]
+             [15, 16 ,17 ,18 ,19,1]]
 
 
 
