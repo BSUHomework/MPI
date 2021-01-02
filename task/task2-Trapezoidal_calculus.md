@@ -63,16 +63,3 @@ process 5 computer result 139.486925055583
 
 
 
-## TODO
-
-Bcast with reduce better fits the master-slave model
-
-```
-# comm.Bcast([a, MPI.FLOAT], root=0)
-# comm.Bcast([b, MPI.FLOAT], root=0)
-# comm.Bcast([n, MPI.INT], root=0)
-then compute result
-use reduce sum result
-
-```
-
