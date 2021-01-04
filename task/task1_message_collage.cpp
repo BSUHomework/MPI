@@ -43,10 +43,10 @@ if(rank == 0) {
                           MPI_Get_count(&status, MPI_INT, &receive_count);
                           int* number_buf = (int*)malloc(sizeof(int) * receive_count);
                           MPI_Recv(number_buf, receive_count, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-                          for(int i = 0; i < sizeof(number_buf)-1; ++i)
+                          for(int i = 0; i < sizeof(number_buf)-3; ++i)
                           {   
                               a[status.MPI_SOURCE]=number_buf;
-                              printf("%d ", number_buf[i]);
+                              printf("[%d] ", number_buf[i]);
                           }
                           printf("\n");
 
@@ -56,29 +56,29 @@ if(rank == 0) {
                           MPI_Get_count(&status, MPI_INT, &receive_count);
                           int* number_buf = (int*)malloc(sizeof(int) * receive_count);
                           MPI_Recv(number_buf, receive_count, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-                          for(int i = 0; i < 5; ++i)
+                          for(int i = 0; i < sizeof(number_buf)-3; ++i)
                           {
                               a[status.MPI_SOURCE]=number_buf;
-                              printf("%d ", number_buf[i]);
+                              printf("[%d] ", number_buf[i]);
                           }
                           printf("\n");
                           break;
                 
             }
         }
-        // int j;
+        
         // for(int i = 0; i < 5; ++i)
         //   {   
-        //       for (j=0;j<5;i++){
+        //       for (int j=0;j<5;i++){
         //       printf("%d ", a[i][j]);
         //       }
         //   }
         //   printf("\n");
-
+        free(a);
     } else {
         value = rank * 2;
         
-        printf("send %d value\n",rank-1);
+        printf("send %d value***************",rank-1);
         
         for(int i = 0; i < 5; ++i)
         {
