@@ -22,12 +22,18 @@ int main(int argc, char **argv) {
 
   int a[3][5] = {{0, 1, 2, 3, 4}, {5, 6, 7, 8, 9}, {10, 11, 12, 13, 14}};
 
+  int n_data = sizeof(a) / sizeof(a[0]);
+  int n_row = sizeof(a[rank - 1]) / sizeof(int);
+  if (sizeof(a) < size - 1) {
+
+    size = n_data - 1;
+    /* code */
+  }
   if (rank == 0) {
 
-    std::vector<int> stat;
     int **a;
     a = (int **)malloc((size - 1) * sizeof(int *));
-    for (int i = 1; i < size; i++) {
+    for (int i = 0; i < n_data; i++) {
 
       int receive_count = 0;
       MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
@@ -37,7 +43,7 @@ int main(int argc, char **argv) {
       int *number_buf = (int *)malloc(sizeof(int) * receive_count);
       MPI_Recv(number_buf, receive_count, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG,
                MPI_COMM_WORLD, &status);
-      for (int i = 0; i < sizeof(number_buf) - 3; ++i) {
+      for (int i = 0; i < receive_count; ++i) {
         a[status.MPI_SOURCE] = number_buf;
         printf("[%d] ", number_buf[i]);
       }
@@ -48,14 +54,15 @@ int main(int argc, char **argv) {
 
     free(a);
   } else {
+    if (rank < n_data + 1) {
+      printf("send %d value***************", rank - 1);
 
-    printf("send %d value***************", rank - 1);
-
-    for (int i = 0; i < 5; ++i) {
-      printf("%d ", a[rank - 1][i]);
+      for (int i = 0; i < n_row; ++i) {
+        printf("%d ", a[rank - 1][i]);
+      }
+      printf("\n");
+      MPI_Send(a[rank - 1], n_row, MPI_INT, 0, 99, MPI_COMM_WORLD);
     }
-    printf("\n");
-    MPI_Send(a[rank - 1], sizeof(a[rank - 1]), MPI_INT, 0, 99, MPI_COMM_WORLD);
   }
 
   MPI_Finalize();
