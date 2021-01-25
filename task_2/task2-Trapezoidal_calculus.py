@@ -14,7 +14,7 @@ import argparse
 from sympy  import sympify
 
 # input star  end   Number of regions and function
-parser = argparse.ArgumentParser(description='')
+parser = argparse.ArgumentParser()
 parser.add_argument("-s",type=float, dest='start',default=0,help="Starting position of the function")
 parser.add_argument("-end",type=float, dest='end',default=10,help="Ending position of the function")
 parser.add_argument("-n",type=int, dest='n',default=1024,help="Number of regions")
@@ -67,40 +67,43 @@ def sub_intergrete(num):
     result = integrate(sub_process_a,sub_process_b,1024)
     return result
 
-data_tag=0
-terminate_tag = 2
-if comm_rank ==0:
-    count =0
-    num = 0
-    for i in range(1,comm_size):
-        comm.send(num,dest= i,tag=data_tag )
-        print("num is {} ,{} processes running,send to process {}".format(num,count,i))
-        count +=1
-        num +=1
-    while count >0:
-        s = MPI.Status()
-        comm.Probe(status=s)
-        data = comm.recv(source = s.source)
-        print("get process {}'s data ,the data is {},total porcess number is {} ".format(s.source,data,count,num))
-        all_result+=data
-        count = count - 1
-        if num < n :
-            comm.send(num,dest = s.source,tag=data_tag)
-            count += 1
-            num += 1
-        else:
-            comm.send(num,dest = s.source,tag=terminate_tag)
-    print("The area of the final trapezoid is",all_result)
-else:
-    sub_s = MPI.Status()
-    comm.Probe(status=sub_s)#get num form 0 process
-    num = comm.recv(source=0)
 
-    while sub_s.tag == data_tag:
-        result = sub_intergrete(num)# compute this area result
-        comm.send(result,dest=0) #send result to 0 proc
-        comm.Probe(status=sub_s) #probe message then update tag number if tag number == 2 break while loop
-        num = comm.recv(source=0,tag=sub_s.tag)
+if __name__ == '__main__':
+
+    data_tag=0
+    terminate_tag = 2
+    if comm_rank ==0:
+        count =0
+        num = 0
+        for i in range(1,comm_size):#Send h number to each process
+            comm.send(num,dest= i,tag=data_tag )
+            print("num is {} ,{} processes running,send to process {}".format(num,count,i))
+            count +=1
+            num +=1
+        while count >0:
+            s = MPI.Status()
+            comm.Probe(status=s)
+            data = comm.recv(source = s.source)#Receive messages returned by each process
+            print("get process {}'s data ,the data is {},total porcess number is {} ".format(s.source,data,count,num))
+            all_result+=data
+            count = count - 1
+            if num < n :#if the process task has not finished running, num<n send new task to the completed process
+                comm.send(num,dest = s.source,tag=data_tag)
+                count += 1
+                num += 1
+            else:#if fales send Terminate tag to child process
+                comm.send(num,dest = s.source,tag=terminate_tag)
+        print("The area of the final trapezoid is",all_result)
+    else:
+        sub_s = MPI.Status()
+        comm.Probe(status=sub_s)#get num form 0 process
+        num = comm.recv(source=0)
+
+        while sub_s.tag == data_tag:
+            result = sub_intergrete(num)# compute this area result
+            comm.send(result,dest=0) #send result to 0 proc
+            comm.Probe(status=sub_s) #probe message then update tag number if tag number == 2 break while loop
+            num = comm.recv(source=0,tag=sub_s.tag)
 
 
 

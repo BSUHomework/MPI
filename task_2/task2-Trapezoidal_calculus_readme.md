@@ -26,37 +26,25 @@ sub_process_a=a+rank*sub_process_n*h
 sub_process_b=sub_process_a+sub_process_n*h
 ```
 
-## main Code
 
-```python
-if comm_rank != 0 :
-    comm.send(result,dest=0)
-else:
-
-    all_result = result
-    for i in range(1,comm_size):
-
-        data = comm.recv(source=i)
-        print(data)
-        all_result+=data
-print(all_result)
-```
-
-Use 0 porcess as main processes then use ohter process compute data for the respective acquired positions
 
 
 
 ### the result
 
 ```
-$ mpirun -np 6 python task2-Trapezoidal_calculus.py -func x^2 -s 0 -end 10 -n 1024
-process 0 compute result 1.49872857663367
-process 1 computer result 10.6501873168680
-process 2 computer result 29.0247363348802
-process 3 computer result 56.6223756306701
-process 4 computer result 93.4431052042378
-process 5 computer result 139.486925055583
-330.726058118873
+$ mpirun -np 6 python task2-Trapezoidal_calculus.py -func x^2 -s 0 -end 10 -n 100
+num is 0 ,0 processes running,send to process 1
+num is 1 ,1 processes running,send to process 2
+num is 2 ,2 processes running,send to process 3
+num is 3 ,3 processes running,send to process 4
+num is 4 ,4 processes running,send to process 5
+get process 5's data ,the data is 162.596431724727,total porcess number is 5 
+get process 4's data ,the data is 98.6120414659381,total porcess number is 4 
+get process 2's data ,the data is 18.6432609483600,total porcess number is 3 
+get process 3's data ,the data is 50.6276512071490,total porcess number is 2 
+get process 1's data ,the data is 2.65887068957090,total porcess number is 1 
+The area of the final trapezoid is 333.138256035745
 
 
 ```
