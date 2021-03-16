@@ -14,38 +14,44 @@ comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
 
-# if rank == 0:
-#     data = 10 + rank
-#     send_req = comm.isend(data, dest=1)
-#     send_req.wait()
-# else:
-#     data = rank * 10  # Data pre-calculation
-#     recv_req = comm.irecv(source=rank - 1)
-#     recv_data = recv_req.wait()
-#     data = recv_data + data  # Get the transmitted data and merge them
-#     print("this is rank {} result {}".format(rank, data))
-#     if rank < size - 1:
-#         send_second_req = comm.isend(data, dest=rank + 1)
-#         send_second_req.wait()
+if __name__ == '__main__':
+    '''
 
 
-# _2d_array =[
-#     [0,3,4,5,1,2,3],
-#     [1,3,4,1,2,3,4]
-#             ]
-# np.zeros([5,5])
-'''
+    int a[N1][N2];
 
-int a[N1][N2];
+      for (i = 1;i<N1; i++)
 
-  for (i = 1;i<N1; i++)
+          for (j = 0;j<N2; j++)
 
-      for (j = 0;j<N2; j++)
+               a[i][j] = a[i-1][j]+1;
+    '''
 
-           a[i][j] = a[i-1][j]+1;
-'''
-N1=4
-N2=4
-for i in range(size):
-    for j in range(N2):
-        pass
+    if rank == 0:
+        a = np.zeros([4, 4])
+        a[0] = [0, 3, 4, 5]
+        send_a_req = comm.isend(a, dest=1)
+        send_a_req.wait()
+        for j in range(len(a[0])):
+            send_req = comm.isend(a[0][j], dest=1, tag=j)
+            send_req.wait()
+
+    else:
+        recv_req = comm.irecv(source=rank - 1)
+
+        a = recv_req.wait()
+        print("recv a:\n", a)
+        for j in range(len(a[0])):
+            recv_req = comm.irecv(source=rank - 1, tag=j)
+
+            recv_data = recv_req.wait()
+            a[rank][j] = recv_data + 1
+            print(f"compute a[{a[rank][j]}]:", rank, j)
+        if rank < size - 1:
+            send_a_second_req = comm.isend(a, dest=rank + 1)
+            send_a_second_req.wait()
+            for j in range(len(a[0])):
+                send_second_req = comm.isend(a[rank][j], dest=rank + 1, tag=j)
+                send_second_req.wait()
+
+    print("final array:\n",a)
