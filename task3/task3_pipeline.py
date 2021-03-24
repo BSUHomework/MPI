@@ -13,7 +13,7 @@ from mpi4py import MPI
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
-
+null = MPI.REQUEST_NULL
 if __name__ == '__main__':
     '''
 
@@ -43,8 +43,9 @@ if __name__ == '__main__':
         print(f"recv a for rank:{rank}:--------------------------\n", a)
         recv_data = np.zeros(1,dtype=np.int)
         request = comm.Irecv([recv_data,MPI.INT],source=rank - 1, tag=0)
+        send_second_req = MPI.REQUEST_NULL
         for j in range(len(a[0])):
-
+            send_second_req.Wait()
             request.Wait()
             print(f"recv  rank({rank-1}) a[{rank-1}][{j}]:{recv_data[0]}",)
             new_data = recv_data[0]
@@ -55,7 +56,7 @@ if __name__ == '__main__':
             if rank < size - 1:
                 send_second_req = comm.Isend([a[rank][j], MPI.INT], dest=rank + 1, tag=j)
                 print(f"send rank{rank+1} a[{rank}][{j}]: {a[rank][j]}")
-                send_second_req.Wait()
+                
         if rank < size - 1:
             send_a_second_req = comm.isend(a, dest=rank + 1,tag=100)
             send_a_second_req.wait()
