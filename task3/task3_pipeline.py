@@ -56,7 +56,7 @@ if __name__ == '__main__':
             if rank < size - 1:
                 send_second_req = comm.Isend([a[rank][j], MPI.INT], dest=rank + 1, tag=j)
                 print(f"send rank{rank+1} a[{rank}][{j}]: {a[rank][j]}")
-                
+
         if rank < size - 1:
             send_a_second_req = comm.isend(a, dest=rank + 1,tag=100)
             send_a_second_req.wait()
