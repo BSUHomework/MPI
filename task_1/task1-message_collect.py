@@ -10,7 +10,6 @@
 import os, sys, time
 import numpy as np
 import mpi4py.MPI as MPI
-#1
 #create some data
 all_data = [[ 0 , 1  ,2  ,3  ,4],
              [ 5 , 6  ,7 , 8 , 9],
